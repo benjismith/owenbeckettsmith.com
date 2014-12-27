@@ -1,0 +1,10 @@
+{
+  "name" : "owenbeckettsmith.com",
+  "version" : "0.0.1",
+  "private" : true,
+  "main" : "server.js",
+  "dependencies" : {
+    "finalhandler" : "latest",
+    "serve-static" : "latest"
+  }
+}
