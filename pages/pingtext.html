@@ -1,0 +1,163 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" 
+"http://www.w3.org/TR/html4/loose.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Union Chat for JavaScript (OrbiterMicro)</title>
+
+<!--CSS-->
+<!--Adds scrolling to the incoming chat pane.-->
+<style type="text/css">
+#chatPane {
+  border: inset 2px; 
+  height: 100px; 
+  width: 400px; 
+  overflow: auto; 
+  padding: 5px; 
+  margin-bottom: 5px
+}
+</style>
+
+<!--Load the OrbiterMicro JavaScript library (non-minified version). Use during development.-->
+<script type="text/javascript" src="http://unionplatform.com/cdn/OrbiterMicro_latest.js"></script>
+<!--Load the OrbiterMicro JavaScript library (minified version). Use for production.-->
+<!--<script type="text/javascript" src="http://unionplatform.com/cdn/OrbiterMicro_latest_min.js"></script>-->
+
+<!--Chat code-->
+<script type="text/javascript">
+//==============================================================================
+// VARIABLES
+//==============================================================================
+var orbiter;
+var msgManager;
+var UPC = net.user1.orbiter.UPC;
+var roomID = "chatRoom";
+
+//==============================================================================
+// INITIALIZATION
+//==============================================================================
+// Triggered by the <body> element's onload handler
+function init () {
+  // Create the Orbiter instance, used to connect to and communicate with Union
+  orbiter = new net.user1.orbiter.Orbiter();
+
+  // Set up the debugging log
+  orbiter.getLog().setLevel(net.user1.logger.Logger.DEBUG);
+  orbiter.enableConsole();
+  
+  // If required JavaScript capabilities are missing, abort
+  if (!orbiter.getSystem().isJavaScriptCompatible()) {
+    displayChatMessage("Your browser is not supported. You must have a JavaScript-Enabled Browser.");
+    return;
+  }
+  
+  // Register for Orbiter's connection events
+  orbiter.addEventListener(net.user1.orbiter.OrbiterEvent.READY, readyListener, this);
+  orbiter.addEventListener(net.user1.orbiter.OrbiterEvent.CLOSE, closeListener, this);
+  
+  // Connect to Union
+  orbiter.connect("tryunion.com", 80);
+  displayChatMessage("Connecting to Servers...");
+}
+
+//==============================================================================
+// ORBITER EVENT LISTENERS
+//==============================================================================
+// Triggered when the connection is ready
+function readyListener (e) {
+  // Register for incoming messages from Union, including notification when 
+  // we've joined the room, and when other users join and leave the room.
+  // These message listeners are registered within the readyListener() function 
+  // so that they are triggered even when the application reconnects after 
+  // a connection failure.
+  msgManager = orbiter.getMessageManager();
+  msgManager.addMessageListener(UPC.JOINED_ROOM, joinedRoomListener, this);
+  msgManager.addMessageListener(UPC.CLIENT_ADDED_TO_ROOM, clientAddedListener, this);
+  msgManager.addMessageListener(UPC.CLIENT_REMOVED_FROM_ROOM, clientRemovedListener, this);
+  msgManager.addMessageListener("CHAT_MESSAGE", chatMessageListener, this, [roomID]);
+
+  displayChatMessage("Connected.");
+  displayChatMessage("Joining chat room...");
+  
+  // Create the chat room
+  msgManager.sendUPC(UPC.CREATE_ROOM, roomID);
+  // Join the chat room
+  msgManager.sendUPC(UPC.JOIN_ROOM, roomID);
+}
+
+// Triggered when the connection is closed
+function closeListener (e) {
+  displayChatMessage("Orbiter connection closed.");
+}
+
+//==============================================================================
+// CHAT ROOM EVENT LISTENER
+//==============================================================================
+// Triggered when a JOINED_ROOM message is received
+function joinedRoomListener () {
+  displayChatMessage("Chat ready!");
+}
+
+// Triggered when another client joins the chat room
+function clientAddedListener (roomID, clientID) {
+  displayChatMessage("User" + clientID + " joined the chat.");
+}
+  
+// Triggered when another client leaves the chat room
+function clientRemovedListener (roomID, clientID) {
+  displayChatMessage("User" + clientID + " left the chat.");
+}
+  
+//==============================================================================
+// CHAT SENDING AND RECEIVING
+//==============================================================================
+// Sends a chat message to everyone in the chat room
+function sendMessage () {
+  var outgoing = document.getElementById("outgoing");
+  if (outgoing.value.length > 0) {
+    msgManager.sendUPC(UPC.SEND_MESSAGE_TO_ROOMS, "CHAT_MESSAGE", roomID, "true", "", outgoing.value);
+    outgoing.value = "";
+    // Focus text field again after submission (required for IE8 only)
+    setTimeout(function () {outgoing.focus();}, 10);
+  }
+}
+
+// Triggered when a chat message is received
+function chatMessageListener (fromClientID, message) {
+  displayChatMessage("User" + fromClientID + ": " + message);
+}
+
+// Displays a single chat message
+function displayChatMessage (message) {
+  // Make the new chat message element
+  var msg = document.createElement("span");
+  msg.appendChild(document.createTextNode(message));
+  msg.appendChild(document.createElement("br"));
+
+  // Append the new message to the chat
+  var chatPane = document.getElementById("chatPane");
+  chatPane.appendChild(msg);
+  
+  // Trim the chat to 1000 messages
+  if (chatPane.childNodes.length > 1000) {
+    chatPane.removeChild(chatPane.firstChild);
+  }
+  chatPane.scrollTop = chatPane.scrollHeight;
+}
+</script>
+</head>
+
+<body onload="init()">
+<h1>Pingtext Communication v1.0</h1>
+<!--Contains the incoming chat messages-->
+<div id="chatPane"></div>
+
+<!--The outgoing chat form-->
+<div>
+  <input type="text" id="outgoing" style="width:340px" onkeydown="if (event.keyCode == 13) sendMessage()"/>
+  <input type="submit" value="Send" style="width:60px" onclick="sendMessage()"/>
+</div>
+<p>Copyright &copy; 2016 USER1 Subsystems Corporation</p>
+<p>Copyright &copy; 2016 THE Enterprises</p>
+<p><a href="index.html">&lt;Home</a></p>
+</body>
+</html>
