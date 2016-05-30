@@ -9,8 +9,8 @@ window.AG_each = function(selector, fn) { if (!document.querySelectorAll) return
 var AG_removeParent = function(el, fn) { while (el && el.parentNode) { if (fn(el)) { el.parentNode.removeChild(el); return; } el = el.parentNode; } };
 } catch (ex) { console.error('Error executing AG js: ' + ex); }</script>
 
-<script src="./circle-game.sysach.com_files/etc.js"></script>
-<script src="./circle-game.sysach.com_files/circle-game.js"></script>
+<script src="./circle-game_files/etc.js"></script>
+<script src="./circle-game_files/circle-game.js"></script>
 <script type="text/javascript">
   $(document).ready(function() {
     if(isCanvasSupported())
