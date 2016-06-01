@@ -1,0 +1,2 @@
+User-agent: *
+Disallow: /owenbeckettsmith.com/pages/987665332149987666587122036.html
