@@ -1,0 +1,17 @@
+body {
+    text-align: center; 
+    width: 100%;
+}
+table {
+    border: 5px solid #999;
+}
+td {
+    width: 30px;
+    height: 30px;
+    text-align: center; 
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 20px; 
+}
+td:hover {
+    background-color: #ccc
+}
