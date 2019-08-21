@@ -13,8 +13,6 @@ function setup() {
    buildEmptyGrid();
    fillInWordLetters();
    fillInRandomLetters();
-
-    
 }
 
 function buildEmptyGrid(){
@@ -29,9 +27,11 @@ function buildEmptyGrid(){
 function fillInWordLetters(){
     for (var i = 0; i < words.length; i++) {
         var word = words [i];
+        var position = getPositionForWord(word);
         for (var j = 0; j < word.length; j++) {
+            var letterXPosition = position.x + j;
             var letter = word.charAt(j).toUpperCase();
-            $("td#row" + i + "_col" + j).append(letter);
+            $("td#row" + position.y + "_col" + letterXPosition).append(letter);
         }
     }
 }
@@ -49,17 +49,30 @@ function fillInRandomLetters(){
     }
 }
 
+function getPositionForWord(word) {
+    var XPosition = getRandomInteger(wordGridWidth);
+    var YPosition = getRandomInteger(wordGridHeight);
+    return {
+      x : XPosition,
+      y : YPosition
+    }
+}
+
 function getRandomLetter() {
     // list all of the letters to choose from 
     var letters = "ABCDEFGHIJKLMNOPQRSTUVWQYZ";
     // count how many letters there are 
     var letterCount = letters.length;
-    // pick a random number between zero and one
-    var randomNumber = Math.random();
     // get a random offset into the letter sequence and drop the fraction 
-    var randomOffset = letterCount * randomNumber;
-    randomOffset = Math.floor(randomOffset);
+    var randomOffset = getRandomInteger(letterCount);
     // pick the letter at the random number 
     var randomLetter = letters.charAt(randomOffset);
     return randomLetter; 
+}
+
+function getRandomInteger(limit) {
+    var randomNumber = Math.random();
+    var randomOffset = limit * randomNumber;
+    randomOffset = Math.floor(randomOffset);
+    return randomOffset; 
 }
