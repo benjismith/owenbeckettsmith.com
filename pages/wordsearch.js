@@ -31,7 +31,9 @@ function fillInWordLetters(){
         for (var j = 0; j < word.length; j++) {
             var letterXPosition = position.x + j;
             var letter = word.charAt(j).toUpperCase();
-            $("td#row" + position.y + "_col" + letterXPosition).append(letter);
+            var $cell = $("td#row" + position.y + "_col" + letterXPosition);
+            $cell.append(letter);
+            $cell.css("background-color", "#ff0000");
         }
     }
 }
@@ -39,10 +41,11 @@ function fillInWordLetters(){
 function fillInRandomLetters(){
     for (var y = 0; y < wordGridHeight; y++) {
         for (var x = 0; x < wordGridWidth;  x++) {
-            var $cell = $("td#row" + y + "_col" + x);
-            var textInCell = $cell.text().trim();
+            var position = { "x" : x, "y" : y };
+            var textInCell = getTextAtPosition(position);
             if (textInCell == "") {
                 var letter = getRandomLetter();
+                var $cell = $("td#row" + position.y + "_col" + position.x);
                 $cell.append(letter);
             }
         }
@@ -50,6 +53,47 @@ function fillInRandomLetters(){
 }
 
 function getPositionForWord(word) {
+    var position = getRandomPosition();
+    while (!isLegalPosition(position, word)) {
+        position = getRandomPosition(); 
+    }
+    return position;
+}
+
+function isLegalPosition(position, word){
+    console.log(`checking position ${position.x}, ${position.y} for word: ${word}`)
+    var lastLetterX = (position.x + word.length) - 1;
+    // First,check to see if this word runs off the edge of the board.
+    if (lastLetterX >= wordGridWidth) {
+        return false;
+    }
+
+    // Next, check to see if this word overlaps another word. 
+    for (var i = 0; i < word.length; i++) {
+        var gridPositionX = position.x + i;
+        var positionToCheck = {
+            x: gridPositionX,
+            y: position.y
+        };
+        var textAtPosition = getTextAtPosition(positionToCheck);
+        if (textAtPosition != "") {
+            var letter = word.charAt(i).toUpperCase();
+            if (letter != textAtPosition) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+function getTextAtPosition(position) {
+    var $cell = $("td#row" + position.y + "_col" + position.x);
+    var textInCell = $cell.text().trim();
+    return textInCell;
+
+}
+
+function getRandomPosition(word) {
     var XPosition = getRandomInteger(wordGridWidth);
     var YPosition = getRandomInteger(wordGridHeight);
     return {
