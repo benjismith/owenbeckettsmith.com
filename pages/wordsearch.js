@@ -6,7 +6,19 @@ var wordGridHeight = 20;
 
 var words = [
     "hello",
-    "goodbye"
+    "goodbye",
+    "tree",
+    "squirrel",
+    "table",
+    "dumpling",
+    "mantisshrimp",
+    "sudo",
+    "nani",
+    "word",
+    "search",
+    "waldo"
+
+
 ]
 
 function setup() {
