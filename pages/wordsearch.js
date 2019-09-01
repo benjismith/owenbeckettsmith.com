@@ -16,7 +16,13 @@ var words = [
     "nani",
     "word",
     "search",
-    "waldo"
+    "waldo",
+    "microsoft",
+    "google",
+    "cloudability",
+    "portland",
+    "porttownsend"
+
 
 
 ]
@@ -39,13 +45,23 @@ function buildEmptyGrid(){
 function fillInWordLetters(){
     for (var i = 0; i < words.length; i++) {
         var word = words [i];
-        var position = getPositionForWord(word);
-        for (var j = 0; j < word.length; j++) {
-            var letterXPosition = position.x + j;
-            var letter = word.charAt(j).toUpperCase();
-            var $cell = $("td#row" + position.y + "_col" + letterXPosition);
-            $cell.append(letter);
-            $cell.css("background-color", "#ff0000");
+        var placement = getPlacementForWord(word);
+        if (placement.direction == "horizontal") {
+            for (var j = 0; j < word.length; j++) {
+                var letterXPosition = placement.x + j;
+                var letter = word.charAt(j).toUpperCase();
+                var $cell = $("td#row" + placement.y + "_col" + letterXPosition);
+                $cell.append(letter);
+                $cell.css("background-color", "#ff0000");
+            }
+        } else if (placement.direction == "vertical") {
+            for (var j = 0; j < word.length; j++) {
+                var letterYPosition = placement.y + j;
+                var letter = word.charAt(j).toUpperCase();
+                var $cell = $("td#row" + letterYPosition + "_col" + placement.x);
+                $cell.append(letter);
+                $cell.css("background-color", "#ff0000");
+            }
         }
     }
 }
@@ -64,38 +80,65 @@ function fillInRandomLetters(){
     }
 }
 
-function getPositionForWord(word) {
-    var position = getRandomPosition();
-    while (!isLegalPosition(position, word)) {
-        position = getRandomPosition(); 
+function getPlacementForWord(word) {
+    var position = getRandomPlacement();
+    while (!isLegalPlacement(position, word)) {
+        position = getRandomPlacement(); 
     }
     return position;
 }
 
-function isLegalPosition(position, word){
-    console.log(`checking position ${position.x}, ${position.y} for word: ${word}`)
-    var lastLetterX = (position.x + word.length) - 1;
-    // First,check to see if this word runs off the edge of the board.
-    if (lastLetterX >= wordGridWidth) {
-        return false;
-    }
+function isLegalPlacement(placement, word){
+    console.log(`checking position ${placement.x}, ${placement.y}, ${placement.direction} for word: ${word}`)
+    if (placement.direction == "horizontal") {
+        var lastLetterX = (placement.x + word.length) - 1;
+        // First,check to see if this word runs off the edge of the board.
+        if (lastLetterX >= wordGridWidth) {
+            return false;
+        }
 
-    // Next, check to see if this word overlaps another word. 
-    for (var i = 0; i < word.length; i++) {
-        var gridPositionX = position.x + i;
-        var positionToCheck = {
-            x: gridPositionX,
-            y: position.y
-        };
-        var textAtPosition = getTextAtPosition(positionToCheck);
-        if (textAtPosition != "") {
-            var letter = word.charAt(i).toUpperCase();
-            if (letter != textAtPosition) {
-                return false;
+        // Next, check to see if this word overlaps another word. 
+        for (var i = 0; i < word.length; i++) {
+            var gridPositionX = placement.x + i;
+            var positionToCheck = {
+                x: gridPositionX,
+                y: placement.y
+            };
+            var textAtPosition = getTextAtPosition(positionToCheck);
+            if (textAtPosition != "") {
+                var letter = word.charAt(i).toUpperCase();
+                if (letter != textAtPosition) {
+                    return false;
+                }
             }
         }
-    }
-    return true;
+        return true;
+    } else if (placement.direction == "vertical" ) {
+        var lastLetterY = (placement.y + word.length) - 1;
+        // First, check to see if this word runs off the edge of the board.
+        if (lastLetterY >= wordGridHeight) {
+            return false;
+        }
+
+        // Next, check to see if this word overlaps another word. 
+        for (var i = 0; i < word.length; i++) {
+            var gridPositionY = placement.y + i;
+            var positionToCheck = {
+                x: placement.x,
+                y: gridPositionY
+            };
+            var textAtPosition = getTextAtPosition(positionToCheck);
+            if (textAtPosition != "") {
+                var letter = word.charAt(i).toUpperCase();
+                if (letter != textAtPosition) {
+                    return false;
+                }
+            }
+        } 
+        return true;
+    }  else {
+        throw new Error ("unexpected direction:" + placement.direction);
+    } 
 }
 
 function getTextAtPosition(position) {
@@ -105,13 +148,15 @@ function getTextAtPosition(position) {
 
 }
 
-function getRandomPosition(word) {
+function getRandomPlacement(word) {
+    var direction = getRandomDirection();
     var XPosition = getRandomInteger(wordGridWidth);
     var YPosition = getRandomInteger(wordGridHeight);
     return {
-      x : XPosition,
-      y : YPosition
-    }
+        direction : direction,
+        x : XPosition,
+        y : YPosition
+    };
 }
 
 function getRandomLetter() {
@@ -124,6 +169,15 @@ function getRandomLetter() {
     // pick the letter at the random number 
     var randomLetter = letters.charAt(randomOffset);
     return randomLetter; 
+}
+
+function getRandomDirection() {
+    var randomNumber = Math.random();
+    if (randomNumber < 0.5) {
+        return "horizontal";
+    } else {
+        return "vertical";
+    }
 }
 
 function getRandomInteger(limit) {
